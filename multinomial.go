@@ -5,7 +5,7 @@ import (
 	"math/rand"
 )
 
-// multinomial draws n samples from a probability distribution given by the
+// Multinomial draws n samples from a probability distribution given by the
 // set of probabilities p.
 // Another way to imagine this is that the function draws from a population
 // whose members belong to distinct categories. The probability of drawing a
@@ -13,7 +13,7 @@ import (
 // slice of integers where the position represents a particular category and
 // the value indicates the number of samples drawn for that particular
 // category.
-func multinomial(n int, p []float64) []int {
+func Multinomial(n int, p []float64) []int {
 	result := make([]int, len(p))
 	cumP := make([]float64, len(p))
 	lastIdx := len(p) - 1
@@ -39,24 +39,24 @@ func multinomial(n int, p []float64) []int {
 	return result
 }
 
-// multinomialLog1p draws n samples from a log-probability distribution given
+// MultinomialLog1p draws n samples from a log-probability distribution given
 // by the set of probabilities p. Note that the log probabilities are actually
 // log(1+p) where p is from 0 to 1. This prevents solves the problem of
 // computing log probability of 0.
-func multinomialLog1p(n int, logP []float64) []int {
+func MultinomialLog1p(n int, logP []float64) []int {
 	// Transform log probabilities into decimal
 	p := make([]float64, len(logP))
 	for i, logProb := range logP {
 		p[i] = math.Expm1(logProb)
 	}
-	return multinomial(n, p)
+	return Multinomial(n, p)
 }
 
-// multinomialLog draws n samples from a log-probability distribution given
+// MultinomialLog draws n samples from a log-probability distribution given
 // by the set of probabilities p. Note that the log probabilities are in the
 // format log(p) where p is from 0 to 1. If p = 0, the log-probability should
 // be encoded as negative infinity.
-func multinomialLog(n int, logP []float64) []int {
+func MultinomialLog(n int, logP []float64) []int {
 	// Transform log probabilities into decimal
 	p := make([]float64, len(logP))
 	for i, logProb := range logP {
@@ -68,5 +68,5 @@ func multinomialLog(n int, logP []float64) []int {
 			p[i] = math.Exp(logProb)
 		}
 	}
-	return multinomial(n, p)
+	return Multinomial(n, p)
 }
