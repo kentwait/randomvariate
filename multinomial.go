@@ -51,3 +51,22 @@ func multinomialLog1p(n int, logP []float64) []int {
 	}
 	return multinomial(n, p)
 }
+
+// multinomialLog draws n samples from a log-probability distribution given
+// by the set of probabilities p. Note that the log probabilities are in the
+// format log(p) where p is from 0 to 1. If p = 0, the log-probability should
+// be encoded as negative infinity.
+func multinomialLog(n int, logP []float64) []int {
+	// Transform log probabilities into decimal
+	p := make([]float64, len(logP))
+	for i, logProb := range logP {
+		if math.IsInf(logProb, -1) {
+			p[i] = 0
+		} else if logProb == 0 {
+			p[i] = 1
+		} else {
+			p[i] = math.Exp(logProb)
+		}
+	}
+	return multinomial(n, p)
+}
