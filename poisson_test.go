@@ -58,3 +58,52 @@ func TestPoisson(t *testing.T) {
 		})
 	}
 }
+
+func TestPoissonXL(t *testing.T) {
+	cases := []struct {
+		name   string
+		lambda float64
+	}{
+		{name: "exp=2",
+			lambda: 1e2,
+		},
+		{name: "exp=3",
+			lambda: 1e3,
+		},
+		{name: "exp=4",
+			lambda: 1e4,
+		},
+		{name: "exp=5",
+			lambda: 1e5,
+		},
+	}
+	iterations := 10000
+	errSize := 0.1
+	rand.Seed(0)
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Simulate
+			var cnt []float64
+			for i := 0; i < iterations; i++ {
+				result := PoissonXL(tc.lambda)
+				cnt = append(cnt, float64(result))
+			}
+			// Sum columns
+			var sum int
+			for _, v := range cnt {
+				sum += int(v)
+			}
+			// Check mean and variance
+			mean := float64(sum) / float64(iterations)
+			variance, _ := stats.Variance(cnt)
+			expected := tc.lambda
+			err := expected * errSize
+			if expected+err <= mean || expected-err >= mean {
+				t.Errorf("frequency mean (%f) is greater than expected (%f) +/- (%f)", mean, expected, err)
+			}
+			if expected+err <= variance || expected-err >= variance {
+				t.Errorf("frequency variance (%f) is greater than expected (%f) +/- (%f)", variance, expected, err)
+			}
+		})
+	}
+}
