@@ -1,12 +1,18 @@
 package randomvariate
 
-import "math/rand"
+import (
+	"math"
+	"math/rand"
+)
 
-// multinomial draws n samples from a population whose members belong to
-// distinct categories. The probability of drawing a sample from a category
-// is given by the slice p. The function returns a slice of integers where the
-// position represents a particular category and the value indicates the
-// number of samples drawn for that particular category.
+// multinomial draws n samples from a probability distribution given by the
+// set of probabilities p.
+// Another way to imagine this is that the function draws from a population
+// whose members belong to distinct categories. The probability of drawing a
+// sample from a category is given by the slice p. The function returns a
+// slice of integers where the position represents a particular category and
+// the value indicates the number of samples drawn for that particular
+// category.
 func multinomial(n int, p []float64) []int {
 	result := make([]int, len(p))
 	cumP := make([]float64, len(p))
@@ -31,4 +37,17 @@ func multinomial(n int, p []float64) []int {
 		}
 	}
 	return result
+}
+
+// multinomialLog1p draws n samples from a log-probability distribution given
+// by the set of probabilities p. Note that the log probabilities are actually
+// log(1+p) where p is from 0 to 1. This prevents solves the problem of
+// computing log probability of 0.
+func multinomialLog1p(n int, logP []float64) []int {
+	// Transform log probabilities into decimal
+	p := make([]float64, len(logP))
+	for i, logProb := range logP {
+		p[i] = math.Expm1(logProb)
+	}
+	return multinomial(n, p)
 }
