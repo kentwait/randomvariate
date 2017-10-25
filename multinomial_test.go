@@ -116,7 +116,7 @@ func TestMultinomial(t *testing.T) {
 			// Simulate
 			var cnt [][]int
 			for i := 0; i < iterations; i++ {
-				result := multinomial(tc.n, tc.p)
+				result := Multinomial(tc.n, tc.p)
 				cnt = append(cnt, result)
 			}
 			// Sum columns
@@ -253,7 +253,7 @@ func TestMultinomialLog1p(t *testing.T) {
 			// Simulate
 			var cnt [][]int
 			for i := 0; i < iterations; i++ {
-				result := multinomialLog1p(tc.n, logP)
+				result := MultinomialLog1p(tc.n, logP)
 				cnt = append(cnt, result)
 			}
 			// Sum columns
@@ -394,7 +394,7 @@ func TestMultinomialLog(t *testing.T) {
 			// Simulate
 			var cnt [][]int
 			for i := 0; i < iterations; i++ {
-				result := multinomialLog(tc.n, logP)
+				result := MultinomialLog(tc.n, logP)
 				cnt = append(cnt, result)
 			}
 			// Sum columns
