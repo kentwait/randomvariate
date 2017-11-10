@@ -1,7 +1,6 @@
 package randomvariate
 
 import (
-	"contagion/utils"
 	"math"
 	"math/rand"
 	"sort"
@@ -26,22 +25,19 @@ func Multinomial(n int, p []float64) []int {
 		gap := limit - s.Float64Slice[b]
 		// subtract from highest to fill the lowest
 		aliasIdx[b] = []int{s.idx[b], s.idx[a]}
-		//aliasValues[b] = []float64{s.Float64Slice[b], limit}
 		aliasValues[b] = []float64{s.Float64Slice[b] / limit, 1.0}
 		s.Float64Slice[a] -= gap
 		s.Float64Slice[b] = limit
 		aliasIdx[a] = []int{s.idx[a]}
-		//aliasValues[a] = []float64{Round(s.Float64Slice[a], -8)}
-		aliasValues[a] = []float64{utils.Round(s.Float64Slice[a]/limit, -8)}
+		aliasValues[a] = []float64{Round(s.Float64Slice[a]/limit, -8)}
 
 		// check if highest is still above limit
 		// if less than limit, fill to limit with next highest
-		if utils.Round(s.Float64Slice[a], -8) == utils.Round(limit, -8) {
+		if Round(s.Float64Slice[a], -8) == Round(limit, -8) {
 			a--
 		} else if s.Float64Slice[a] < limit {
 			gap := limit - s.Float64Slice[a]
 			aliasIdx[a] = append(aliasIdx[a], s.idx[a-1])
-			//aliasValues[a] = append(aliasValues[a], limit)
 			aliasValues[a] = append(aliasValues[a], 1.0)
 			// go to next highest
 			a--
