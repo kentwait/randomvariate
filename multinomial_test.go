@@ -138,7 +138,7 @@ func TestMultinomial(t *testing.T) {
 	}
 }
 
-func TestMultinomialI(t *testing.T) {
+func TestMultinomialA(t *testing.T) {
 	cases := []struct {
 		name string
 		n    int
@@ -248,7 +248,7 @@ func TestMultinomialI(t *testing.T) {
 			// Simulate
 			var cnt [][]int
 			for i := 0; i < iterations; i++ {
-				result := MultinomialI(tc.n, tc.p)
+				result := MultinomialA(tc.n, tc.p)
 				cnt = append(cnt, result)
 			}
 			// Sum columns
@@ -547,3 +547,35 @@ func TestMultinomialLog(t *testing.T) {
 		})
 	}
 }
+
+// func BenchmarkMultinomial(b *testing.B) {
+// 	// 1000 sites
+// 	p := make([]float64, 10000)
+// 	var total float64
+// 	for i := 0; i < 10000; i++ {
+// 		p[i] = rand.Float64()
+// 		total += p[i]
+// 	}
+// 	for i := range p {
+// 		p[i] = p[i] / total
+// 	}
+// 	for n := 0; n < b.N; n++ {
+// 		Multinomial(1, p)
+// 	}
+// }
+
+// func BenchmarkMultinomialI(b *testing.B) {
+// 	// 1000 sites
+// 	p := make([]float64, 10000)
+// 	var total float64
+// 	for i := 0; i < 10000; i++ {
+// 		p[i] = rand.Float64()
+// 		total += p[i]
+// 	}
+// 	for i := range p {
+// 		p[i] = p[i] / total
+// 	}
+// 	for n := 0; n < b.N; n++ {
+// 		MultinomialI(1, p)
+// 	}
+// }
