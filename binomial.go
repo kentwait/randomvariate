@@ -7,5 +7,5 @@ package randomvariate
 // either be 1 or 0. The probability of successfully drawing is given by
 // the slice p.
 func Binomial(n int, p float64) int {
-	return MultinomialI(n, []float64{p, 1.0 - p})[0]
+	return Multinomial(n, []float64{p, 1.0 - p})[0]
 }

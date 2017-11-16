@@ -3,70 +3,12 @@ package randomvariate
 import (
 	"math"
 	"math/rand"
-	"sort"
 )
 
 // Multinomial draws n samples from a probability distribution given by the
-// set of probabilities p. Uses the alias method.
-func Multinomial(n int, p []float64) []int {
-	result := make([]int, len(p))
-
-	// Create an discrete uniform distribution by combining categories
-	// together using the alias method
-	limit := 1.0 / float64(len(p))
-	s := NewSlice(p...)
-	sort.Sort(s)
-
-	aliasIdx := make(map[int][]int)
-	aliasValues := make(map[int][]float64)
-	b := 0
-	a := len(p) - 1
-	for b < a {
-		gap := limit - s.Float64Slice[b]
-		// subtract from highest to fill the lowest
-		aliasIdx[b] = []int{s.idx[b], s.idx[a]}
-		aliasValues[b] = []float64{s.Float64Slice[b] / limit, 1.0}
-		s.Float64Slice[a] -= gap
-		s.Float64Slice[b] = limit
-		aliasIdx[a] = []int{s.idx[a]}
-		aliasValues[a] = []float64{Round(s.Float64Slice[a]/limit, -8)}
-
-		// check if highest is still above limit
-		// if less than limit, fill to limit with next highest
-		if Round(s.Float64Slice[a], -8) == Round(limit, -8) {
-			a--
-		} else if s.Float64Slice[a] < limit {
-			gap := limit - s.Float64Slice[a]
-			aliasIdx[a] = append(aliasIdx[a], s.idx[a-1])
-			aliasValues[a] = append(aliasValues[a], 1.0)
-			// go to next highest
-			a--
-			s.Float64Slice[a] -= gap
-			s.Float64Slice[a+1] = limit
-		}
-		b++
-	}
-	for i := 0; i < n; i++ {
-		// Generate pseudo-random integer
-		r := rand.Intn(len(p))
-		if len(aliasValues[r]) > 1 {
-			// Generate pseudorandom number
-			if x := rand.Float64(); x <= aliasValues[r][0] {
-				result[aliasIdx[r][0]]++
-			} else {
-				result[aliasIdx[r][1]]++
-			}
-		} else {
-			result[aliasIdx[r][0]]++
-		}
-	}
-	return result
-}
-
-// MultinomialI draws n samples from a probability distribution given by the
 // set of probabilities p. Uses the inversion method which may be inefficient
-// when the number of categories is large.
-func MultinomialI(n int, p []float64) []int {
+// when the number of categories and number of samples are both large.
+func Multinomial(n int, p []float64) []int {
 	result := make([]int, len(p))
 	cumP := make([]float64, len(p))
 	lastIdx := len(p) - 1
@@ -87,6 +29,54 @@ func MultinomialI(n int, p []float64) []int {
 				result[lastIdx]++
 				break
 			}
+		}
+	}
+	return result
+}
+
+// MultinomialA draws n samples from a probability distribution given by the
+// set of probabilities p. Uses the alias method. Faster when dealing with
+// a larger number of categories and number of samples.
+func MultinomialA(n int, p []float64) []int {
+	// Setup uniform distribution
+	K := len(p)
+	q := make([]float64, K)
+	J := make([]int, K)
+
+	var smaller []int
+	var larger []int
+	for i, prob := range p {
+		q[i] = float64(K) * prob
+		if q[i] < 1.0 {
+			smaller = append(smaller, i)
+		} else {
+			larger = append(larger, i)
+		}
+	}
+
+	var small, large int
+	for len(smaller) > 0 && len(larger) > 0 {
+		small, smaller = smaller[len(smaller)-1], smaller[:len(smaller)-1]
+		large, larger = larger[len(larger)-1], larger[:len(larger)-1]
+
+		J[small] = large
+		q[large] = float64(q[large] - (1.0 - q[small]))
+
+		if q[large] < 1.0 {
+			smaller = append(smaller, large)
+		} else {
+			larger = append(larger, large)
+		}
+	}
+
+	// Draw sample
+	result := make([]int, len(p))
+	for i := 0; i < n; i++ {
+		kk := rand.Intn(K)
+		if rand.Float64() < float64(q[kk]) {
+			result[kk]++
+		} else {
+			result[J[kk]]++
 		}
 	}
 	return result
@@ -122,25 +112,4 @@ func MultinomialLog(n int, logP []float64) []int {
 		}
 	}
 	return Multinomial(n, p)
-}
-
-type Slice struct {
-	sort.Float64Slice
-	idx []int
-}
-
-func (s Slice) Swap(i, j int) {
-	s.Float64Slice.Swap(i, j)
-	s.idx[i], s.idx[j] = s.idx[j], s.idx[i]
-}
-
-func NewSlice(n ...float64) *Slice {
-	// Copy
-	nn := make([]float64, len(n))
-	copy(nn, n)
-	s := &Slice{Float64Slice: sort.Float64Slice(nn), idx: make([]int, len(n))}
-	for i := range s.idx {
-		s.idx[i] = i
-	}
-	return s
 }
